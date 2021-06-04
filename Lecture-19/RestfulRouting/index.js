@@ -1,9 +1,10 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
+const methodOverride = require('method-override');
 
 app.set('view engine', 'ejs');
-
 app.use(express.urlencoded({ extended: true }))
+app.use(methodOverride('_method'));
 
 
 const comments = [{
@@ -36,7 +37,6 @@ app.get("/comments/new", (req, res) => {
 })
 
 // creates a new comment
-
 app.post('/comments', (req, res) => {
 
     const { username, body } = req.body;
@@ -56,6 +56,27 @@ app.get('/comments/:id', (req, res) => {
 
 
     res.render('comments/show', { comment: foundComment })
+})
+
+
+// getting a form for editing comment
+
+app.get('/comments/:id/edit', (req, res) => {
+    const { id } = req.params;
+    const foundComment = comments.find(c => c.id === parseInt(id))
+    res.render('comments/edit', { comment: foundComment });
+
+})
+
+// Update the comments
+
+app.patch('/comments/:id', (req, res) => {
+
+    const { id } = req.params;
+    const foundComment = comments.find(c => c.id === parseInt(id))
+    const updatedCommentText = req.body.body;
+    foundComment.body = updatedCommentText;
+    res.redirect("/comments");
 })
 
 app.listen(3000, () => {
